@@ -1,0 +1,41 @@
+---
+title: "Weight_IAT_data_analysis"
+author: "Liz Wilson"
+date: "3/15/2021"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(psych)
+```
+
+
+```{r}
+IAT <- read_csv("cleaned_IAT_data.csv", 
+    col_types = cols(X1 = col_skip()))
+```
+
+Visualizing attitude
+```{r}
+ggplot(IAT, aes(Dscore, fill = as.factor(sex))) + geom_histogram(alpha=0.5, position="identity") + ggtitle("Histogram of IAT score by gender")
+
+ggplot(IAT, aes(att, fill = as.factor(sex))) + geom_histogram(alpha=0.5, position="identity") + ggtitle("Histogram of att by gender")
+
+ggplot(IAT, aes(therm.diff, fill = as.factor(sex))) + geom_histogram(alpha=0.5, position="identity") + ggtitle("Histogram of thermometer differences by gender")
+```
+
+Variance difference for IAT scores, att measure, and thermometer.
+```{r}
+### filtering by sex
+IAT.m <- IAT %>% filter(sex == 2)
+IAT.f <- IAT %>% filter(sex == 1)
+
+var.test(IAT.m$Dscore, IAT.f$Dscore)
+var.test(IAT.m$att, IAT.f$att)
+var.test(IAT.m$therm.diff, IAT.f$therm.diff)
+```
+
