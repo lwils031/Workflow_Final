@@ -16,7 +16,6 @@ library(psych)
 library(DataExplorer)
 ```
 
-
 Loading in the project implicit datasets
 ```{r}
 IAT04 <- read_sav("~/Implicit_datasets/Weight IAT.public.2004.sav")
@@ -79,7 +78,6 @@ The weightpref variable is measured the same as att7_reversed variable.
 
 
 Now, I will begin to group datasets together that included constructs that were measured in similar ways (e.g., grouping datasets in which attitudes were measured with a 5-point scale vs. 7-point scale).
-
 
 I am grouping datasets together that used a 5-point attitude scale and then standardizing their scores (2004-2006)
 ```{r}
@@ -188,6 +186,10 @@ plot_bar(allYears)
 Saving this cleaned dataset to a new csv file
 ```{r}
 write.csv(allYears, "cleaned_IAT_data.csv")
+
+#I'm saving a smaller subset of the data that I can upload to github in order to give others an idea of what my final dataset looks like. 
+allYears_subset <- allYears[1:500,]
+write.csv(allYears_subset, "cleaned_IAT_data_subset.csv")
 ```
 
 
