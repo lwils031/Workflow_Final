@@ -1,0 +1,122 @@
+---
+title: "Final_Project_Report"
+author: "Liz Wilson"
+date: "3/15/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(ggplot2)
+library(DataExplorer)
+
+cleaned_IAT_data_subset <- read_csv("cleaned_IAT_data_subset.csv", 
+    col_types = cols(X1 = col_skip()))
+```
+
+## Introduction
+This project involves data related to weight bias and weight attitudes across
+2004-2020. My goal was to end up with a dataset that contained 4 important attitude-related variables as well as a gender variable. In addition to that, I included a geographical variable (US State) because our lab oftentimes runs regional-level analyses. I could envision in the future that having the state data could be very helpful so I wanted to incorporate that into the workflow. There were a variety of changes that I made to my data cleaning script and data anlaysis that I believe improved it. These are the main changes that I made that I would like to review in this report:
+
+* Spliting my script up into two parts. One script is for cleaning and the other is for analyzing data.
+* Loading my data into R in a way that saves me from having to recode variables.
+* Reducing the instances I would assign variables back to themselves instead of assigning them to a new variable name.
+* Reducing the repetition in my code by using a for loop to rename variables.
+* Removing code that I really did not need.
+* Renaming the IAT D score variable
+* Including visualizations in my cleaning in order to ensure that the values of the variables all made sense.
+
+### 1. Split long scripts to make files more manageable.
+
+When I first was working with this this data, I was realizing that I would always have to run through tons of code chunks before I could get to analyzing my data. It felt a lot more intuitive to have one script that cleans the data and gives me a new csv file with all of the data in the format that I need. That way, whenver I want to analyze the dataset, I can simply load in the cleaned data and go to the analysis code it without having to run through all the data cleaning lines first.
+
+### 2. Loaded my data into R differently. 
+
+When I first analyzed my data, I was using a function called read.spss(). This time around, I ended up using a different command called read_sav() to import the data. I'm not exactly sure why this happened, but instead of giving me string variables for attitude scales and thermometers, using read_sav() gave me numerical variables. So for example, instead of having to recode "I strongly prefer Thin People to Fat People" into a 7, the data already came in numerical form. I honestly have no idea how that happened, but it ended up making my script so much shorter and more efficient because I didn't have to change variables.
+```{r eval = FALSE}
+#old way
+IAT04 <- read.spss("Implicit_datasets/Weight IAT.public.2004.sav", to.data.frame=TRUE)
+
+#new way
+IAT04 <- read_sav("~/Implicit_datasets/Weight IAT.public.2004.sav")
+```
+
+### 3. Assigning new variables
+
+In the past, I would make a change to a variable and assign it back to itself. In this script, I've reduced instances of doing that and have instead assigned changes to a new variable name. I believe this has cut down on opportunities to make errors.
+Here is an example of where this has been done.
+```{r eval = FALSE}
+#old way
+att4$att_reversed <- 8 - att4$att_reversed
+
+#new way
+Weight10_16a <- Weight10_16a %>% 
+  mutate(att7= 8-att_reversed,
+         tfat = 12-tfat_1to11_reversed,
+         tthin = 12-tthin_1to11_reversed)
+```
+
+In this example, I have renamed the reverse scored variables something entirely new so that it is easier to remember which variable is reverse scored and which variable is in its original form. 
+
+### 4. Automated renaming variables
+
+While I still have code that renames variables individually, I have reduced this a lot by using for loops. This is the code I used to do this.
+```{r eval = FALSE}
+#renaming attitude variables
+aList <- list("Weight10_16b","Weight_att_2017","Weight_att_2018","Weight_att_2019","Weight_att_2020")
+
+for(i in aList){
+  aux <- get(i)
+  names(aux)[2] <- c("att_7")
+  assign(i,aux)
+}
+
+#renaming sex variable
+aList2 <- list("Weight_att_2017", "Weight_att_2018", "Weight_att_2019", "Weight_att_2020", "Weight10_16b")
+
+for(i in aList2){
+  aux <- get(i)
+  names(aux)[5] <- c("sex")
+  assign(i,aux)
+}
+```
+This change has reduced the need for me to copy and paste code over and over again and making small changes to the name of the dataframe I am trying to manipulate. I know when I copy and paste a lot of repetitive code, I am opening up the opportunity for errors to unintentionally be made. I am hoping that by automating the renaming step, I can reduce my chances of making errors.
+
+
+### 5. Removing unnecessary code
+
+My old script was based on a previous script that was given to me by someone else. At that point, I was still getting more used to R and how to work with these bigger sets of data so I kind of just went with what was previously done. As a result, I think there was some code in the old script that was an artifact of the script given to me. I am sure some of that code is helpful, but I am not sure that it was needed in this particular analysis I was running. I have removed a lot of that code, because I don't think it was actually needed. Here are examples of code I removed.
+```{r eval=FALSE}
+weight1.IAT <- dplyr::select(weight1, D_biep.Thin_Good_all,sex) %>% filter(sex != "n", sex!= "", sex != ".", sex != "n", sex != "1", sex != "M", sex != "F",sex != "A")
+```
+I think my current code works fine without having to filter out certain nuissance responses.
+
+### 6. Renaming IAT variable
+
+I am sure for anybody who is not familiar with project implicit data, "D_biep.Thin_Good_all" is not very intuitive. IAT scores are frequently referred to as D scores, so I wanted to change the variable name to something shorter and more accessible. This is how I did that. I think this change makes the code more readable in the analysis script and any other future analyses. It'll make a lot more sense to someone when they see a variable called "Dscore" rather than seeing "D_biep.Thin_Good_all" in the code.
+```{r eval = FALSE}
+colnames(allYears)[1] <- "Dscore"
+```
+
+### 7. Incorporting exploratory visualizations
+
+I added plotted graphs in order to check the data. Whenever I reverse score or change my data in any major way, I sometimes get nervous about if everything looks okay. By checking the data visually, I will be able to tell that all the values attitudes values make sense and are within the range of what they should be.
+```{r}
+plot_histogram(cleaned_IAT_data_subset)
+plot_bar(cleaned_IAT_data_subset)
+```
+
+These are some of the overall changes that I have made to this project workflow. I have definitely appreciated the opportunity to work with this script again and familiarize myself with better ways to clean and manage the data and scripts for this work.
+
+
+
+
+
+
+
+
+
+
